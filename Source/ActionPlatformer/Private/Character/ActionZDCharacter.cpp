@@ -25,8 +25,12 @@ void AActionZDCharacter::OnConstruction(const FTransform& Transform)
 	
 	HitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	HitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
 	HitBox->OnComponentBeginOverlap.AddDynamic(this, &AActionZDCharacter::OnHitBoxBeginOverlap);
+
+	// Disable Sprite Collision
+	GetSprite()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	SetHitBoxActive(false);
 }
 
 void AActionZDCharacter::SetHitBoxActive(const bool IsHitBoxActive)
@@ -88,13 +92,28 @@ void AActionZDCharacter::Damage()
 		if (StunAnimationSequence)
 		{
 			bIsStunned = true;
+			if (OnStunStateChanged.IsBound())
+			{
+				OnStunStateChanged.Broadcast(bIsStunned);
+			}
+			
 			FZDOnAnimationOverrideEndSignature OnDone = FZDOnAnimationOverrideEndSignature();
-			OnDone.BindLambda([this](bool IsCompleted){ bIsStunned = false; });
+			OnDone.BindLambda([this](bool IsCompleted)
+			{
+				bIsStunned = false;
+				if (OnStunStateChanged.IsBound())
+				{
+					OnStunStateChanged.Broadcast(bIsStunned);
+				}
+			});
 			GetAnimInstance()->PlayAnimationOverride(StunAnimationSequence, "Attack", 1.0, 0.0, OnDone);
 		}
 
 		// Play HitStop
 		PlayHitStop();
+
+		// Shake Sprite
+		ShakeSprite();
 	}
 }
 
@@ -113,4 +132,28 @@ void AActionZDCharacter::PlayHitStop()
 		bIsInHitStop = false;
 		CustomTimeDilation = 1.0f;
 	}, HitStopDelaySeconds, false);
+}
+
+void AActionZDCharacter::ShakeSprite()
+{
+	FTimerManager& Timer = GetWorld()->GetTimerManager();
+	if (Timer.IsTimerActive(ShakeStopTimer)) { return; }
+
+	ShakeStartLocation = GetSprite()->GetRelativeLocation();
+
+	// Repeat Shake
+	Timer.SetTimer(ShakeTimer, [this]
+	{
+		FlipShake = !FlipShake;
+		GetSprite()->SetRelativeLocation(ShakeStartLocation + (FlipShake ? ShakeOffset : -ShakeOffset));
+	}, ShakeRepeatPeriodSeconds, true);
+
+	// Wait Shake Stop Timer
+	Timer.SetTimer(ShakeStopTimer, [this]
+	{
+		GetSprite()->SetRelativeLocation(ShakeStartLocation);
+		
+		GetWorld()->GetTimerManager().ClearTimer(ShakeTimer);
+		GetWorld()->GetTimerManager().ClearTimer(ShakeStopTimer);
+	}, ShakeStopDelaySeconds, false);
 }

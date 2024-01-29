@@ -6,6 +6,8 @@
 #include "PaperZDCharacter.h"
 #include "ActionZDCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnStunStateChanged, bool IsStunned)
+
 class UPaperZDAnimSequence;
 class UBoxComponent;
 
@@ -64,9 +66,6 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health")
-	float DeathTimerDelaySeconds;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health")
 	int32 MaxHealth;
 
 	UPROPERTY(VisibleAnywhere, Category="Health")
@@ -74,10 +73,28 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack")
 	float HitStopDelaySeconds;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack")
+	FVector ShakeOffset;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack")
+	float ShakeRepeatPeriodSeconds;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack")
+	float ShakeStopDelaySeconds;
 	
 private:
 	FTimerHandle DeathTimer;
 	FTimerHandle HitStopTimer;
+	FTimerHandle ShakeTimer;
+	FTimerHandle ShakeStopTimer;
+
+	bool FlipShake;
+	FVector ShakeStartLocation;
+
+	//Delegates
+public:
+	FOnStunStateChanged OnStunStateChanged;
 	
 public:
 	AActionZDCharacter();
@@ -96,7 +113,7 @@ public:
 	// Attack and Damage
 public:
 	UFUNCTION(BlueprintCallable, Category="ActionCharacter")
-	bool CanInput() const { return !bIsAttacking && !bIsStunned; }
+	bool CanMove() const { return !bIsAttacking && !bIsStunned; }
 	
 	UFUNCTION(BlueprintCallable, Category="ActionCharacter")
 	bool IsAttacking() const { return bIsAttacking; }
@@ -105,7 +122,7 @@ public:
 	bool IsStunned() const { return bIsStunned; }
 
 	UFUNCTION(BlueprintCallable, Category="ActionCharacter")
-	bool IsDeath() const { return bIsDeath; }
+	bool IsDead() const { return bIsDeath; }
 
 	UFUNCTION(BlueprintCallable, Category="ActionCharacter")
 	bool IsInHitStop() const { return bIsInHitStop; }
@@ -117,6 +134,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="ActionCharacter")
 	void PlayHitStop();
 
+	UFUNCTION(BlueprintCallable, Category="ActionCharacter")
+	void ShakeSprite();
+	
 	virtual void OnDeath() {}
 	
 	// Factions

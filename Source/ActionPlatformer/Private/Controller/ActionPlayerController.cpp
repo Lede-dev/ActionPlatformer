@@ -6,8 +6,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 
-#include "PaperZDAnimInstance.h"
-
 #include "Character/ActionZDCharacter.h"
 
 
@@ -39,7 +37,7 @@ void AActionPlayerController::SetupInputComponent()
 void AActionPlayerController::Move(const FInputActionValue& Value)
 {
 	const FVector2D Movement = Value.Get<FVector2D>();
-	if (Player.IsValid() && Player->CanInput())
+	if (Player.IsValid() && Player->CanMove())
 	{
 		Player->AddMovementInput(ForwardDirection * Movement.Y * ForwardMoveSpeed);
 		Player->AddMovementInput(RightDirection * Movement.X * RightMoveSpeed);
@@ -57,7 +55,7 @@ void AActionPlayerController::Move(const FInputActionValue& Value)
 
 void AActionPlayerController::Jump()
 {
-	if (Player.IsValid() && Player->CanInput())
+	if (Player.IsValid() && Player->CanMove())
 	{
 		Player->Jump();
 	}
@@ -65,7 +63,7 @@ void AActionPlayerController::Jump()
 
 void AActionPlayerController::Attack()
 {
-	if (Player.IsValid() && Player->CanInput())
+	if (Player.IsValid() && Player->CanMove())
 	{
 		Player->AttackBasic();
 	}
@@ -73,7 +71,7 @@ void AActionPlayerController::Attack()
 
 void AActionPlayerController::Throw()
 {
-	if (Player.IsValid() && Player->CanInput())
+	if (Player.IsValid() && Player->CanMove())
 	{
 		Player->AttackSpecial();
 	}

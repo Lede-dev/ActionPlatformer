@@ -11,7 +11,13 @@ void UAttackAnimNotifyState::OnNotifyBegin_Implementation(UPaperZDAnimInstance* 
 
 	if (!PaperCharacter.IsValid())
 	{
-		PaperCharacter = MakeWeakObjectPtr(Cast<AActionZDCharacter>(OwningInstance->GetPaperCharacter()));
+		if (OwningInstance)
+		{
+			if (APaperZDCharacter* Character = OwningInstance->GetPaperCharacter())
+			{
+				PaperCharacter = MakeWeakObjectPtr(Cast<AActionZDCharacter>(Character));
+			}
+		}
 	}
 
 	if (PaperCharacter.IsValid())

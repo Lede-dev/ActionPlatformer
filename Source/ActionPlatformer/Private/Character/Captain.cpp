@@ -40,7 +40,7 @@ void ACaptain::OnHitBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		if (Enemy->GetFaction() == EFaction::Enemy)
 		{
 			Enemy->Damage();
-			PlayHitStop();
+			// PlayHitStop();
 		}
 	}
 }
