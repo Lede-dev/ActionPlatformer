@@ -3,3 +3,8 @@
 
 #include "Character/Shark.h"
 
+AShark::AShark()
+{
+	Faction = EFaction::Enemy;
+	
+}
