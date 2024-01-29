@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PaperZDAnimInstance.h"
 #include "GameFramework/PlayerController.h"
 #include "ActionPlayerController.generated.h"
 
 
+class UPaperZDAnimSequence;
 class AActionZDCharacter;
 
 struct FInputActionValue;
@@ -33,7 +35,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
 	UInputAction* ThrowAction;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement")
 	FVector ForwardDirection;
 
@@ -45,7 +47,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement")
 	float RightMoveSpeed;
-	
+
 protected:
 	TWeakObjectPtr<AActionZDCharacter> Player;
 	

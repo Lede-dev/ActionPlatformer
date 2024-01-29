@@ -5,10 +5,11 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "PaperFlipbookComponent.h"
+
+#include "PaperZDAnimInstance.h"
+
 #include "Character/ActionZDCharacter.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
+
 
 void AActionPlayerController::BeginPlay()
 {
@@ -38,17 +39,16 @@ void AActionPlayerController::SetupInputComponent()
 void AActionPlayerController::Move(const FInputActionValue& Value)
 {
 	const FVector2D Movement = Value.Get<FVector2D>();
-	if (Player.IsValid())
+	if (Player.IsValid() && Player->CanInput())
 	{
 		Player->AddMovementInput(ForwardDirection * Movement.Y * ForwardMoveSpeed);
 		Player->AddMovementInput(RightDirection * Movement.X * RightMoveSpeed);
 
-		const FVector MoveDirection = Player->GetVelocity() * RightDirection;
-		if (Player->GetVelocity().X > 0)
+		if (Movement.X > 0)
 		{
 			SetControlRotation(FRotator::ZeroRotator);
 		}
-		else if (Player->GetVelocity().X < 0)
+		else if (Movement.X < 0)
 		{
 			SetControlRotation(FRotator(0, 180, 0));
 		}
@@ -57,7 +57,7 @@ void AActionPlayerController::Move(const FInputActionValue& Value)
 
 void AActionPlayerController::Jump()
 {
-	if (Player.IsValid())
+	if (Player.IsValid() && Player->CanInput())
 	{
 		Player->Jump();
 	}
@@ -65,8 +65,16 @@ void AActionPlayerController::Jump()
 
 void AActionPlayerController::Attack()
 {
+	if (Player.IsValid() && Player->CanInput())
+	{
+		Player->AttackBasic();
+	}
 }
 
 void AActionPlayerController::Throw()
 {
+	if (Player.IsValid() && Player->CanInput())
+	{
+		Player->AttackSpecial();
+	}
 }

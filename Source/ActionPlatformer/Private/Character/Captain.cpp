@@ -4,6 +4,7 @@
 #include "Character/Captain.h"
 
 #include "Camera/CameraComponent.h"
+#include "Character/Shark.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ACaptain::ACaptain()
@@ -28,4 +29,17 @@ void ACaptain::OnConstruction(const FTransform& Transform)
 void ACaptain::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ACaptain::OnHitBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// Skip Check if Other Actor is Current Actor
+	if (OtherActor == this) { return; }
+
+	// Check if Other Actor is AShark
+	if (AShark* Shark = Cast<AShark>(OtherActor))
+	{
+		Shark->Damage();
+	}
 }
